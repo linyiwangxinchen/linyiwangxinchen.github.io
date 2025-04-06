@@ -1,0 +1,244 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>OpenRocket 自定义组件添加方法 | 雯雯のblog</title><meta name="author" content="赵雯雯"><meta name="copyright" content="赵雯雯"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ace0f9"><meta name="description" content="添加位置   首先需要在net&#x2F;sf&#x2F;openrocket&#x2F;rocketcomponent下建立对应的java类，  类的内容可以参考其目录下的Glider.java进行参考。    然后添加界面：   在core&#x2F;resources&#x2F;l10n&#x2F;messages_zh_CN.properties文件中插入需要添加图标的ASCII码和对应的类名。 12compaddbuttons.Glider">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenRocket 自定义组件添加方法">
+<meta property="og:url" content="https://blog.wxcsz.top/2025/01/21/OpenRocket_Cavitation/index.html">
+<meta property="og:site_name" content="雯雯のblog">
+<meta property="og:description" content="添加位置   首先需要在net&#x2F;sf&#x2F;openrocket&#x2F;rocketcomponent下建立对应的java类，  类的内容可以参考其目录下的Glider.java进行参考。    然后添加界面：   在core&#x2F;resources&#x2F;l10n&#x2F;messages_zh_CN.properties文件中插入需要添加图标的ASCII码和对应的类名。 12compaddbuttons.Glider">
+<meta property="og:locale">
+<meta property="og:image" content="https://blog.wxcsz.top/img/head_picture.jpg">
+<meta property="article:published_time" content="2025-01-21T12:38:53.086Z">
+<meta property="article:modified_time" content="2025-01-21T12:38:55.895Z">
+<meta property="article:author" content="赵雯雯">
+<meta property="article:tag" content="OpenRocket">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.wxcsz.top/img/head_picture.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "OpenRocket 自定义组件添加方法",
+  "url": "https://blog.wxcsz.top/2025/01/21/OpenRocket_Cavitation/",
+  "image": "https://blog.wxcsz.top/img/head_picture.jpg",
+  "datePublished": "2025-01-21T12:38:53.086Z",
+  "dateModified": "2025-01-21T12:38:55.895Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "赵雯雯",
+      "url": "https://blog.wxcsz.top/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/head_picture.jpg"><link rel="canonical" href="https://blog.wxcsz.top/2025/01/21/OpenRocket_Cavitation/index.html"><link rel="preconnect"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="/pluginsSrc/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ace0f9')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"top_n_per_article":1,"unescape":true,"languages":{"hits_empty":"No results found for: ${query}","hits_stats":"${hits} articles found"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Failed',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: '/pluginsSrc/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'OpenRocket 自定义组件添加方法',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/head.css"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">Loading...</div></div></div><script>(()=>{
+  const $loadingBox = document.getElementById('loading-box')
+  const $body = document.body
+  const preloader = {
+    endLoading: () => {
+      $body.style.overflow = ''
+      $loadingBox.classList.add('loaded')
+    },
+    initLoading: () => {
+      $body.style.overflow = 'hidden'
+      $loadingBox.classList.remove('loaded')
+    }
+  }
+
+  preloader.initLoading()
+  window.addEventListener('load', preloader.endLoading)
+
+  if (false) {
+    btf.addGlobalFn('pjaxSend', preloader.initLoading, 'preloader_init')
+    btf.addGlobalFn('pjaxComplete', preloader.endLoading, 'preloader_end')
+  }
+})()</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/head_picture.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">22</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">4</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Times</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Pages</span></a></div><div class="menus_item"><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></div><div class="menus_item"><a class="site-page" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> Photos</span></a></div><div class="menus_item"><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movies</span></a></div><div class="menus_item"><span class="site-page group hide"><i class="fa-fw fas fa-link"></i><span> Links</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://alist.wxcsz.top"><i class="fa-fw fas fa-tags"></i><span> Alist</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://wxcsz.top"><i class="fa-fw fas fa-tags"></i><span> Searchweb</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="http://web.wxcsz.top"><i class="fa-fw fas fa-tags"></i><span> Checkweb</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(/img/nuan1.jpeg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">雯雯のblog</span></a><a class="nav-page-title" href="/"><span class="site-name">OpenRocket 自定义组件添加方法</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> Search</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Times</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Pages</span></a></div><div class="menus_item"><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></div><div class="menus_item"><a class="site-page" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> Photos</span></a></div><div class="menus_item"><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movies</span></a></div><div class="menus_item"><span class="site-page group hide"><i class="fa-fw fas fa-link"></i><span> Links</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://alist.wxcsz.top"><i class="fa-fw fas fa-tags"></i><span> Alist</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://wxcsz.top"><i class="fa-fw fas fa-tags"></i><span> Searchweb</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="http://web.wxcsz.top"><i class="fa-fw fas fa-tags"></i><span> Checkweb</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">OpenRocket 自定义组件添加方法<a class="post-edit-link" href="null_posts/OpenRocket_Cavitation.md" title="Edit" target="_blank"><i class="fas fa-pencil-alt"></i></a></h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-01-21T12:38:53.086Z" title="Created 2025-01-21 20:38:53">2025-01-21</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-01-21T12:38:55.895Z" title="Updated 2025-01-21 20:38:55">2025-01-21</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/OpenRocket/">OpenRocket</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">Word Count:</span><span class="word-count">621</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">Reading Time:</span><span>2mins</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="tian-jia-wei-zhi">添加位置</h1>
+<ul>
+<li>
+<p>首先需要在<code>net/sf/openrocket/rocketcomponent</code>下建立对应的<code>java</code>类，</p>
+<ul>
+<li>类的内容可以参考其目录下的<code>Glider.java</code>进行参考。</li>
+</ul>
+</li>
+<li>
+<p>然后添加界面：</p>
+<ul>
+<li>
+<p>在<code>core/resources/l10n/messages_zh_CN.properties</code>文件中插入需要添加图标的ASCII码和对应的类名。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">compaddbuttons.Glider                  = \u6ed1\u7fd4\u673a</span><br><span class="line">  compaddbuttons.Cavitation              = \u5706\u76d8\u7a7a\u5316\u5668```</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>在<code>core/resources/l10n/messages.properties</code>文件中插入对应的类别（一般为Body Tube）。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">compaddbuttons.Glider = Body tube</span><br><span class="line">  compaddbuttons.Cavitation = Body tube```</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li>
+<p>然后添加逻辑：</p>
+<ul>
+<li>
+<p>首先找到<code>swing/src/net/sf/openrocket/gui/main/ComponentAddButtons.java</code>文件。</p>
+</li>
+<li>
+<p>在<code>protected void fireActionPerformed(ActionEvent event)</code>方法下找到<code>RocketComponent component;</code>下面的<code>try</code>代码，然后仿造这个<code>try</code>写一个新的<code>try</code>逻辑，其中<code>if</code>中的<code>build</code>函数后面要更换，这里我们假设其为<code>f</code>函数。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">RocketComponent component;</span><br><span class="line">             <span class="keyword">try</span> &#123;</span><br><span class="line"></span><br><span class="line">                 <span class="comment">//待添加的组件</span></span><br><span class="line">                 component = (RocketComponent) constructor.newInstance();</span><br><span class="line">                 <span class="keyword">if</span> (component.getClass() == Glider.class) &#123;</span><br><span class="line">                     <span class="comment">//获取当前选择的组件 默认为：主发动机</span></span><br><span class="line">                     <span class="comment">//获取当前组件的树形结构</span></span><br><span class="line">                     build(OpenRocketDocumentFactory.mydoc.getRocket(),<span class="number">0</span>);</span><br><span class="line">                 &#125;</span><br><span class="line">             &#125; <span class="keyword">catch</span> (InstantiationException e) &#123;</span><br><span class="line">                 <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">BugException</span>(<span class="string">&quot;Could not construct new instance of class &quot;</span> + constructor, e);</span><br><span class="line">             &#125; <span class="keyword">catch</span> (IllegalAccessException e) &#123;</span><br><span class="line">                 <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">BugException</span>(<span class="string">&quot;Could not construct new instance of class &quot;</span> + constructor, e);</span><br><span class="line">             &#125; <span class="keyword">catch</span> (InvocationTargetException e) &#123;</span><br><span class="line">                 <span class="keyword">throw</span> Reflection.handleWrappedException(e);</span><br><span class="line">             &#125;```</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>模仿，找到下面代码中有<code>Glider</code>名称的那几个<code>if</code>判定，将我们新加的组件的逻辑加入这几个<code>if</code>判定中去。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (component.getClass() != Glider.class &amp;&amp; component.getClass() != Cavitation.class ) &#123;</span><br><span class="line">      <span class="keyword">if</span> (position == <span class="literal">null</span>)</span><br><span class="line">          c.addChild(component);</span><br><span class="line">      <span class="keyword">else</span></span><br><span class="line">          c.addChild(component, position);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Select new component and open config dialog</span></span><br><span class="line"><span class="keyword">if</span> (component.getClass() != Glider.class &amp;&amp; component.getClass() != Cavitation.class) &#123;</span><br><span class="line">selectionModel.setSelectionPath(ComponentTreeModel.makeTreePath(component));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (component.getClass() != Glider.class &amp;&amp; component.getClass() != Cavitation.class) &#123;</span><br><span class="line"></span><br><span class="line">    ComponentConfigDialog.showDialog(parent, document, component, <span class="literal">false</span>, <span class="literal">true</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>最后，在文件的最后，参照build方法构建自己的f函数。这里的操作是将组件插入第0级的位置，被插入的组件可以在这里定义参数，可以插入多个组件，可以命名新的级别，（对着写就好了）</p>
+<ul>
+<li></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">build</span><span class="params">(RocketComponent component,<span class="type">int</span> flag)</span>&#123;</span><br><span class="line">          System.out.println(component);</span><br><span class="line">          <span class="comment">//头锥</span></span><br><span class="line">          <span class="keyword">try</span> &#123;</span><br><span class="line">              <span class="comment">//stage</span></span><br><span class="line">              Constructor&lt;AxialStage&gt; stageConstructor = AxialStage.class.getConstructor();</span><br><span class="line">              <span class="type">AxialStage</span> <span class="variable">stage</span> <span class="operator">=</span> stageConstructor.newInstance();</span><br><span class="line">              Constructor&lt;NoseCone&gt; coneConstructor = NoseCone.class.getConstructor();</span><br><span class="line">              <span class="comment">//头锥</span></span><br><span class="line">              <span class="type">NoseCone</span> <span class="variable">noseCone</span> <span class="operator">=</span> coneConstructor.newInstance();</span><br><span class="line">              <span class="comment">//箭体</span></span><br><span class="line">              Constructor&lt;BodyTube&gt; bodyTubeConstructor = BodyTube.class.getConstructor();</span><br><span class="line">              <span class="type">BodyTube</span> <span class="variable">bodyTube</span> <span class="operator">=</span> bodyTubeConstructor.newInstance();</span><br><span class="line">              <span class="comment">//箭体2</span></span><br><span class="line">              Constructor&lt;BodyTube&gt; bodyTubeConstructor2 = BodyTube.class.getConstructor();</span><br><span class="line">              <span class="type">BodyTube</span> <span class="variable">bodyTube2</span> <span class="operator">=</span> bodyTubeConstructor2.newInstance();</span><br><span class="line">              <span class="comment">//自由曲面稳定</span></span><br><span class="line">              Constructor&lt;FreeformFinSet&gt; freeformFinSetConstructor = FreeformFinSet.class.getConstructor();</span><br><span class="line">              <span class="type">FreeformFinSet</span> <span class="variable">freeformFinSet</span> <span class="operator">=</span> freeformFinSetConstructor.newInstance();</span><br><span class="line">              <span class="comment">//椭圆</span></span><br><span class="line">              Constructor&lt;EllipticalFinSet&gt; ellipticalFinSetConstructor = EllipticalFinSet.class.getConstructor();</span><br><span class="line">              <span class="type">EllipticalFinSet</span> <span class="variable">ellipticalFinSet</span> <span class="operator">=</span> ellipticalFinSetConstructor.newInstance();</span><br><span class="line">              bodyTube.addChild(ellipticalFinSet);</span><br><span class="line">              bodyTube2.addChild(freeformFinSet);</span><br><span class="line">              stage.addChild(noseCone,flag);</span><br><span class="line">              stage.addChild(bodyTube,flag+<span class="number">1</span>);</span><br><span class="line">              stage.addChild(bodyTube2,flag+<span class="number">2</span>);</span><br><span class="line">              stage.setName(<span class="string">&quot;滑翔机&quot;</span>);</span><br><span class="line">              component.addChild(stage,<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">//            children.add(flag+1,bodyTube);</span></span><br><span class="line">          &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">              e.printStackTrace();</span><br><span class="line">          &#125;</span><br><span class="line"></span><br><span class="line">      &#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://blog.wxcsz.top">赵雯雯</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://blog.wxcsz.top/2025/01/21/OpenRocket_Cavitation/">https://blog.wxcsz.top/2025/01/21/OpenRocket_Cavitation/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles on this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless otherwise stated.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/OpenRocket/">OpenRocket</a></div><div class="post-share"><div class="social-share" data-image="/img/head_picture.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="/pluginsSrc/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="/pluginsSrc/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2024/12/23/Mathematical_Physics/" title="【数物】课程复习（一）"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">Previous</div><div class="info-item-2">【数物】课程复习（一）</div></div><div class="info-2"><div class="info-item-1">题型  判断15题，每题1分 不定项选择，一题2分 大题75分；前两章是10分  第一章 复变函数   只涉及客观题（判断选择） 雨课堂有关题目都要看！包括判断选择  第一讲：复变函数引论 一、复数的表示与运算   表示：  常规：z=x+iyz=x+iyz=x+iy 取实（虚）部：Rez=x=z+zˉ2Rez=x=\frac {z + \bar z}...</div></div></div></a><a class="pagination-related" href="/2025/01/22/RK4_fast_in_water/" title="【高速入水】【RK4】RK4求解器类"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">Next</div><div class="info-item-2">【高速入水】【RK4】RK4求解器类</div></div><div class="info-2"><div class="info-item-1">RK4求解器Python代码  该类代码仿照MATLAB中的ode45方法的需求进行编写 可以进行继承，对被积函数与截止函数（积分截止条件）进行重构。 该类的输入为时间步长，积分初值以及积分时间范围，返回积分时间与积分结果 下面是代码  123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899100101102103104105106107108109110111112113114115116117118119120121122123124125126127128129130131132133134135136137138139import numpy as npclass RK4Solver:    # 该类为写的任意函数的求解器。任意函数为func。   ...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/head_picture.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">赵雯雯</div><div class="author-info-description">轻盈的风，偶尔也会变得沉重……虽然，只是凡人难以察觉的短短一瞬。</div><div class="site-data"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">22</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://alist.wxcsz.top"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">雯雯の日常Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#tian-jia-wei-zhi"><span class="toc-number">1.</span> <span class="toc-text">添加位置</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Posts</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/03/27/atk_code/" title="【ATK】基于MATLAB的ATK二次开发指南：卫星对地目标可见性分析优化">【ATK】基于MATLAB的ATK二次开发指南：卫星对地目标可见性分析优化</a><time datetime="2025-03-27T07:20:29.224Z" title="Created 2025-03-27 15:20:29">2025-03-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/03/08/CalcUnsteadyCavity_fast_in_water/" title="【高速入水】【CalcUnsteadyCavity】非定常轴对称空腔的形状和空腔轴线的弯曲">【高速入水】【CalcUnsteadyCavity】非定常轴对称空腔的形状和空腔轴线的弯曲</a><time datetime="2025-03-08T13:28:24.489Z" title="Created 2025-03-08 21:28:24">2025-03-08</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/03/08/CalcClearances_fast_in_water/" title="【高速入水】【CalcClearances】模型肋部的间隙和沾湿长度">【高速入水】【CalcClearances】模型肋部的间隙和沾湿长度</a><time datetime="2025-03-08T09:13:17.302Z" title="Created 2025-03-08 17:13:17">2025-03-08</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/03/08/CalcModelFrequency_fast_in_water/" title="【高速入水】【CalcModelFrequency】估计模型的'Psi'振荡频率">【高速入水】【CalcModelFrequency】估计模型的'Psi'振荡频率</a><time datetime="2025-03-08T08:41:20.442Z" title="Created 2025-03-08 16:41:20">2025-03-08</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/02/04/TurnModelOnGamma_fast_in_water/" title="【高速入水】【TurnModelOnGamma】围绕空穴中心以角度 Gamma 旋转模型轮廓。">【高速入水】【TurnModelOnGamma】围绕空穴中心以角度 Gamma 旋转模型轮廓。</a><time datetime="2025-02-03T17:05:56.960Z" title="Created 2025-02-04 01:05:56">2025-02-04</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2025 By 赵雯雯</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Reading Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light and Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle Between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Settings"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back to Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"><script>(async () => {
+  const showKatex = () => {
+    document.querySelectorAll('#article-container .katex').forEach(el => el.classList.add('katex-show'))
+  }
+
+  if (!window.katex_js_css) {
+    window.katex_js_css = true
+    await btf.getCSS('/pluginsSrc/katex/dist/katex.min.css')
+    if (false) {
+      await btf.getScript('/pluginsSrc/katex/dist/contrib/copy-tex.min.js')
+    }
+  }
+
+  showKatex()
+})()</script></div><script id="click-heart" src="/pluginsSrc/butterfly-extsrc/dist/click-heart.min.js" async="async" mobile="false"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  Loading Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
