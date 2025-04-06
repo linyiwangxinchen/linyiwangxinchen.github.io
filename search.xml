@@ -1,6 +1,195 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>【高速入水】【CalcClearances】模型肋部的间隙和沾湿长度</title>
+    <url>/2025/03/08/CalcClearances_fast_in_water/</url>
+    <content><![CDATA[<h1 id="code-calc-clearances-code-han-shu-shuo-ming-wen-dang"><code>calc_clearances</code> 函数说明文档</h1>
+<h2 id="gong-neng-miao-shu" id="功能描述">功能描述</h2>
+<p>该函数用于计算模型肋部的间隙和沾湿长度。通过分析模型轮廓与空腔轮廓的相对位置，确定模型各肋部的上下间隙以及沾湿部分的长度和面积。</p>
+<h2 id="can-shu-shuo-ming" id="参数说明">参数说明</h2>
+<table>
+<thead>
+<tr>
+<th>参数名</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Nview</code></td>
+<td><code>int</code></td>
+<td>可视化窗口中的步数</td>
+</tr>
+<tr>
+<td><code>Ncon</code></td>
+<td><code>int</code></td>
+<td>模型的节数</td>
+</tr>
+<tr>
+<td><code>HX</code></td>
+<td><code>float</code></td>
+<td>计算步长</td>
+</tr>
+<tr>
+<td><code>Xpr</code></td>
+<td><code>ndarray</code></td>
+<td>空腔点的X坐标数组</td>
+</tr>
+<tr>
+<td><code>Ypr1</code></td>
+<td><code>ndarray</code></td>
+<td>下空腔轮廓的Y坐标数组</td>
+</tr>
+<tr>
+<td><code>Ypr2</code></td>
+<td><code>ndarray</code></td>
+<td>上空腔轮廓的Y坐标数组</td>
+</tr>
+<tr>
+<td><code>Xmod</code></td>
+<td><code>ndarray</code></td>
+<td>模型轮廓点的X坐标数组</td>
+</tr>
+<tr>
+<td><code>Ymod</code></td>
+<td><code>ndarray</code></td>
+<td>模型轮廓点的Y坐标数组</td>
+</tr>
+<tr>
+<td><code>RibTan</code></td>
+<td><code>ndarray</code></td>
+<td>模型各节的边缘线角度的正切值</td>
+</tr>
+<tr>
+<td><code>Part</code></td>
+<td><code>ndarray</code></td>
+<td>模型各节的无量纲长度</td>
+</tr>
+<tr>
+<td><code>Xc</code></td>
+<td><code>float</code></td>
+<td>模型质心的无量纲X坐标</td>
+</tr>
+<tr>
+<td><code>BaseR</code></td>
+<td><code>ndarray</code></td>
+<td>模型各节末端的无量纲半径数组</td>
+</tr>
+</tbody>
+</table>
+<h2 id="fan-hui-zhi" id="返回值">返回值</h2>
+<table>
+<thead>
+<tr>
+<th>返回值名</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fh1</code></td>
+<td><code>float</code></td>
+<td>最小下间隙（正值表示浸没深度）</td>
+</tr>
+<tr>
+<td><code>fh2</code></td>
+<td><code>float</code></td>
+<td>最小上间隙（正值表示浸没深度）</td>
+</tr>
+<tr>
+<td><code>fdl1</code></td>
+<td><code>float</code></td>
+<td>下部沾湿长度</td>
+</tr>
+<tr>
+<td><code>fdl2</code></td>
+<td><code>float</code></td>
+<td>上部沾湿长度</td>
+</tr>
+<tr>
+<td><code>Sw1</code></td>
+<td><code>float</code></td>
+<td>下部沾湿面积</td>
+</tr>
+<tr>
+<td><code>Sw2</code></td>
+<td><code>float</code></td>
+<td>上部沾湿面积</td>
+</tr>
+<tr>
+<td><code>Imin1</code></td>
+<td><code>int</code></td>
+<td>下间隙最小值对应的肋编号</td>
+</tr>
+<tr>
+<td><code>Imin2</code></td>
+<td><code>int</code></td>
+<td>上间隙最小值对应的肋编号</td>
+</tr>
+<tr>
+<td><code>FlagAhead</code></td>
+<td><code>bool</code></td>
+<td>是否模型前端超出质心的标志</td>
+</tr>
+</tbody>
+</table>
+<h2 id="shu-xue-gong-shi" id="数学公式">数学公式</h2>
+<h3 id="xia-jian-xi-ji-suan" id="下间隙计算">下间隙计算</h3>
+<p>对于每个模型肋部 <code>k</code>，计算下间隙 <code>Cl1[k]</code>：</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>Cl1</mtext><mo stretchy="false">[</mo><mi>k</mi><mo stretchy="false">]</mo><mo>=</mo><mi>Y</mi><mn>1</mn><mi>r</mi><mi>i</mi><mo>−</mo><mi>Y</mi><mi>m</mi><mi>o</mi><mi>d</mi><mo stretchy="false">[</mo><mn>2</mn><mi>N</mi><mi>c</mi><mi>o</mi><mi>n</mi><mo>+</mo><mn>2</mn><mo>−</mo><mi>k</mi><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">\text{Cl1}[k] = Y1ri - Ymod[2Ncon + 2 - k]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord text"><span class="mord">Cl1</span></span><span class="mopen">[</span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal" style="margin-right:0.22222em;">Y</span><span class="mord">1</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mord mathnormal">i</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">Ym</span><span class="mord mathnormal">o</span><span class="mord mathnormal">d</span><span class="mopen">[</span><span class="mord">2</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mord mathnormal">co</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">2</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mclose">]</span></span></span></span></p>
+<p>其中，<code>Y1ri</code> 是通过线性插值得到的空腔轮廓Y坐标：</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mn>1</mn><mi>r</mi><mi>i</mi><mo>=</mo><mi>Y</mi><mi>p</mi><mi>r</mi><mn>1</mn><mo stretchy="false">[</mo><mi>i</mi><mo>−</mo><mn>1</mn><mo stretchy="false">]</mo><mo>+</mo><mfrac><mrow><mo stretchy="false">(</mo><mi>X</mi><mi>m</mi><mi>o</mi><mi>d</mi><mo stretchy="false">[</mo><mn>2</mn><mi>N</mi><mi>c</mi><mi>o</mi><mi>n</mi><mo>+</mo><mn>2</mn><mo>−</mo><mi>k</mi><mo stretchy="false">]</mo><mo>−</mo><mi>X</mi><mi>p</mi><mi>r</mi><mo stretchy="false">[</mo><mi>i</mi><mo>−</mo><mn>1</mn><mo stretchy="false">]</mo><mo stretchy="false">)</mo></mrow><mrow><mi>H</mi><mi>X</mi></mrow></mfrac><mo>×</mo><mo stretchy="false">(</mo><mi>Y</mi><mi>p</mi><mi>r</mi><mn>1</mn><mo stretchy="false">[</mo><mi>i</mi><mo stretchy="false">]</mo><mo>−</mo><mi>Y</mi><mi>p</mi><mi>r</mi><mn>1</mn><mo stretchy="false">[</mo><mi>i</mi><mo>−</mo><mn>1</mn><mo stretchy="false">]</mo><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">Y1ri = Ypr1[i-1] + \frac{(Xmod[2Ncon + 2 - k] - Xpr[i-1])}{HX} \times (Ypr1[i] - Ypr1[i-1])</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.22222em;">Y</span><span class="mord">1</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mord mathnormal">i</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.22222em;">Y</span><span class="mord mathnormal">p</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mord">1</span><span class="mopen">[</span><span class="mord mathnormal">i</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.355em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.01em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.08125em;">H</span><span class="mord mathnormal mtight" style="margin-right:0.07847em;">X</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.485em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mopen mtight">(</span><span class="mord mathnormal mtight" style="margin-right:0.07847em;">X</span><span class="mord mathnormal mtight">m</span><span class="mord mathnormal mtight">o</span><span class="mord mathnormal mtight">d</span><span class="mopen mtight">[</span><span class="mord mtight">2</span><span class="mord mathnormal mtight" style="margin-right:0.10903em;">N</span><span class="mord mathnormal mtight">co</span><span class="mord mathnormal mtight">n</span><span class="mbin mtight">+</span><span class="mord mtight">2</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span><span class="mclose mtight">]</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight">Xp</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span><span class="mopen mtight">[</span><span class="mord mathnormal mtight">i</span><span class="mbin mtight">−</span><span class="mord mtight">1</span><span class="mclose mtight">])</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.22222em;">Y</span><span class="mord mathnormal">p</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mord">1</span><span class="mopen">[</span><span class="mord mathnormal">i</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.22222em;">Y</span><span class="mord mathnormal">p</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mord">1</span><span class="mopen">[</span><span class="mord mathnormal">i</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">])</span></span></span></span></p>
+<h3 id="xia-bu-zhan-shi-chang-du-ji-suan" id="下部沾湿长度计算">下部沾湿长度计算</h3>
+<p>如果存在接触（<code>Cl1[k] &gt; 0</code>），计算下部沾湿长度 <code>fdl1</code>：</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mi>d</mi><mi>l</mi><mn>1</mn><mo>=</mo><mi>X</mi><mi>m</mi><mi>o</mi><mi>d</mi><mo stretchy="false">[</mo><mn>2</mn><mi>N</mi><mi>c</mi><mi>o</mi><mi>n</mi><mo>+</mo><mn>2</mn><mo>−</mo><mi>k</mi><mo stretchy="false">]</mo><mo>−</mo><mi>X</mi><mi>p</mi><mi>r</mi><mo stretchy="false">[</mo><mi>i</mi><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">fdl1 = Xmod[2Ncon + 2 - k] - Xpr[i]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">fd</span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.07847em;">X</span><span class="mord mathnormal">m</span><span class="mord mathnormal">o</span><span class="mord mathnormal">d</span><span class="mopen">[</span><span class="mord">2</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mord mathnormal">co</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">2</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">Xp</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mopen">[</span><span class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></p>
+<p>沾湿面积 <code>Sw1</code>：</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mi>w</mi><mn>1</mn><mo>=</mo><mi>f</mi><mi>d</mi><mi>l</mi><mn>1</mn><mo>×</mo><msqrt><mrow><mn>2</mn><mo>×</mo><mi>B</mi><mi>a</mi><mi>s</mi><mi>e</mi><mi>R</mi><mo stretchy="false">[</mo><mi>k</mi><mo stretchy="false">]</mo><mo>×</mo><mi>f</mi><mi>h</mi><mn>1</mn></mrow></msqrt></mrow><annotation encoding="application/x-tex">Sw1 = fdl1 \times \sqrt{2 \times BaseR[k] \times fh1}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.02691em;">Sw</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">fd</span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.24em;vertical-align:-0.305em;"></span><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.935em;"><span class="svg-align" style="top:-3.2em;"><span class="pstrut" style="height:3.2em;"></span><span class="mord" style="padding-left:1em;"><span class="mord">2</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal">a</span><span class="mord mathnormal">se</span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mopen">[</span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mord mathnormal">h</span><span class="mord">1</span></span></span><span style="top:-2.895em;"><span class="pstrut" style="height:3.2em;"></span><span class="hide-tail" style="min-width:1.02em;height:1.28em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="1.28em" viewBox="0 0 400000 1296" preserveAspectRatio="xMinYMin slice"><path d="M263,681c0.7,0,18,39.7,52,119
+c34,79.3,68.167,158.7,102.5,238c34.3,79.3,51.8,119.3,52.5,120
+c340,-704.7,510.7,-1060.3,512,-1067
+l0 -0
+c4.7,-7.3,11,-11,19,-11
+H40000v40H1012.3
+s-271.3,567,-271.3,567c-38.7,80.7,-84,175,-136,283c-52,108,-89.167,185.3,-111.5,232
+c-22.3,46.7,-33.8,70.3,-34.5,71c-4.7,4.7,-12.3,7,-23,7s-12,-1,-12,-1
+s-109,-253,-109,-253c-72.7,-168,-109.3,-252,-110,-252c-10.7,8,-22,16.7,-34,26
+c-22,17.3,-33.3,26,-34,26s-26,-26,-26,-26s76,-59,76,-59s76,-60,76,-60z
+M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.305em;"><span></span></span></span></span></span></span></span></span></p>
+<h3 id="shang-jian-xi-ji-suan" id="上间隙计算">上间隙计算</h3>
+<p>对于每个模型肋部 <code>k</code>，计算上间隙 <code>Cl2[k]</code>：</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>Cl2</mtext><mo stretchy="false">[</mo><mi>k</mi><mo stretchy="false">]</mo><mo>=</mo><mi>Y</mi><mi>m</mi><mi>o</mi><mi>d</mi><mo stretchy="false">[</mo><mi>k</mi><mo>+</mo><mn>1</mn><mo stretchy="false">]</mo><mo>−</mo><mi>Y</mi><mn>2</mn><mi>r</mi><mi>i</mi></mrow><annotation encoding="application/x-tex">\text{Cl2}[k] = Ymod[k + 1] - Y2ri</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord text"><span class="mord">Cl2</span></span><span class="mopen">[</span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">Ym</span><span class="mord mathnormal">o</span><span class="mord mathnormal">d</span><span class="mopen">[</span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.22222em;">Y</span><span class="mord">2</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mord mathnormal">i</span></span></span></span></p>
+<p>其中，<code>Y2ri</code> 是通过线性插值得到的空腔轮廓Y坐标：</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mn>2</mn><mi>r</mi><mi>i</mi><mo>=</mo><mi>Y</mi><mi>p</mi><mi>r</mi><mn>2</mn><mo stretchy="false">[</mo><mi>i</mi><mo>−</mo><mn>1</mn><mo stretchy="false">]</mo><mo>+</mo><mfrac><mrow><mo stretchy="false">(</mo><mi>X</mi><mi>m</mi><mi>o</mi><mi>d</mi><mo stretchy="false">[</mo><mi>k</mi><mo>+</mo><mn>1</mn><mo stretchy="false">]</mo><mo>−</mo><mi>X</mi><mi>p</mi><mi>r</mi><mo stretchy="false">[</mo><mi>i</mi><mo>−</mo><mn>1</mn><mo stretchy="false">]</mo><mo stretchy="false">)</mo></mrow><mrow><mi>H</mi><mi>X</mi></mrow></mfrac><mo>×</mo><mo stretchy="false">(</mo><mi>Y</mi><mi>p</mi><mi>r</mi><mn>2</mn><mo stretchy="false">[</mo><mi>i</mi><mo stretchy="false">]</mo><mo>−</mo><mi>Y</mi><mi>p</mi><mi>r</mi><mn>2</mn><mo stretchy="false">[</mo><mi>i</mi><mo>−</mo><mn>1</mn><mo stretchy="false">]</mo><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">Y2ri = Ypr2[i-1] + \frac{(Xmod[k + 1] - Xpr[i-1])}{HX} \times (Ypr2[i] - Ypr2[i-1])</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.22222em;">Y</span><span class="mord">2</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mord mathnormal">i</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.22222em;">Y</span><span class="mord mathnormal">p</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mord">2</span><span class="mopen">[</span><span class="mord mathnormal">i</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.355em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.01em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.08125em;">H</span><span class="mord mathnormal mtight" style="margin-right:0.07847em;">X</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.485em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mopen mtight">(</span><span class="mord mathnormal mtight" style="margin-right:0.07847em;">X</span><span class="mord mathnormal mtight">m</span><span class="mord mathnormal mtight">o</span><span class="mord mathnormal mtight">d</span><span class="mopen mtight">[</span><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span><span class="mbin mtight">+</span><span class="mord mtight">1</span><span class="mclose mtight">]</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight">Xp</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span><span class="mopen mtight">[</span><span class="mord mathnormal mtight">i</span><span class="mbin mtight">−</span><span class="mord mtight">1</span><span class="mclose mtight">])</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.22222em;">Y</span><span class="mord mathnormal">p</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mord">2</span><span class="mopen">[</span><span class="mord mathnormal">i</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.22222em;">Y</span><span class="mord mathnormal">p</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mord">2</span><span class="mopen">[</span><span class="mord mathnormal">i</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">])</span></span></span></span></p>
+<h3 id="shang-bu-zhan-shi-chang-du-ji-suan" id="上部沾湿长度计算">上部沾湿长度计算</h3>
+<p>如果存在接触（<code>Cl2[k] &gt; 0</code>），计算上部沾湿长度 <code>fdl2</code>：</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mi>d</mi><mi>l</mi><mn>2</mn><mo>=</mo><mi>X</mi><mi>m</mi><mi>o</mi><mi>d</mi><mo stretchy="false">[</mo><mi>k</mi><mo>+</mo><mn>1</mn><mo stretchy="false">]</mo><mo>−</mo><mi>X</mi><mi>p</mi><mi>r</mi><mo stretchy="false">[</mo><mi>i</mi><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">fdl2 = Xmod[k + 1] - Xpr[i]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">fd</span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord">2</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.07847em;">X</span><span class="mord mathnormal">m</span><span class="mord mathnormal">o</span><span class="mord mathnormal">d</span><span class="mopen">[</span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">Xp</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mopen">[</span><span class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></p>
+<p>沾湿面积 <code>Sw2</code>：</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mi>w</mi><mn>2</mn><mo>=</mo><mi>f</mi><mi>d</mi><mi>l</mi><mn>2</mn><mo>×</mo><msqrt><mrow><mn>2</mn><mo>×</mo><mi>B</mi><mi>a</mi><mi>s</mi><mi>e</mi><mi>R</mi><mo stretchy="false">[</mo><mi>k</mi><mo stretchy="false">]</mo><mo>×</mo><mi>f</mi><mi>h</mi><mn>2</mn></mrow></msqrt></mrow><annotation encoding="application/x-tex">Sw2 = fdl2 \times \sqrt{2 \times BaseR[k] \times fh2}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.02691em;">Sw</span><span class="mord">2</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">fd</span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord">2</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.24em;vertical-align:-0.305em;"></span><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.935em;"><span class="svg-align" style="top:-3.2em;"><span class="pstrut" style="height:3.2em;"></span><span class="mord" style="padding-left:1em;"><span class="mord">2</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal">a</span><span class="mord mathnormal">se</span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mopen">[</span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mord mathnormal">h</span><span class="mord">2</span></span></span><span style="top:-2.895em;"><span class="pstrut" style="height:3.2em;"></span><span class="hide-tail" style="min-width:1.02em;height:1.28em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="1.28em" viewBox="0 0 400000 1296" preserveAspectRatio="xMinYMin slice"><path d="M263,681c0.7,0,18,39.7,52,119
+c34,79.3,68.167,158.7,102.5,238c34.3,79.3,51.8,119.3,52.5,120
+c340,-704.7,510.7,-1060.3,512,-1067
+l0 -0
+c4.7,-7.3,11,-11,19,-11
+H40000v40H1012.3
+s-271.3,567,-271.3,567c-38.7,80.7,-84,175,-136,283c-52,108,-89.167,185.3,-111.5,232
+c-22.3,46.7,-33.8,70.3,-34.5,71c-4.7,4.7,-12.3,7,-23,7s-12,-1,-12,-1
+s-109,-253,-109,-253c-72.7,-168,-109.3,-252,-110,-252c-10.7,8,-22,16.7,-34,26
+c-22,17.3,-33.3,26,-34,26s-26,-26,-26,-26s76,-59,76,-59s76,-60,76,-60z
+M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.305em;"><span></span></span></span></span></span></span></span></span></p>
+<h2 id="shi-li-diao-yong" id="示例调用">示例调用</h2>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 示例数据</span></span><br><span class="line">Nview = <span class="number">100</span></span><br><span class="line">Ncon = <span class="number">3</span></span><br><span class="line">HX = <span class="number">0.1</span></span><br><span class="line">Xpr = np.linspace(<span class="number">0</span>, <span class="number">10</span>, Nview)</span><br><span class="line">Ypr1 = np.sin(Xpr)</span><br><span class="line">Ypr2 = np.cos(Xpr)</span><br><span class="line">Xmod = np.array([<span class="number">0.0</span>, <span class="number">1.0</span>, <span class="number">2.0</span>, <span class="number">3.0</span>, <span class="number">4.0</span>, <span class="number">5.0</span>, <span class="number">6.0</span>, <span class="number">7.0</span>, <span class="number">8.0</span>, <span class="number">9.0</span>, <span class="number">10.0</span>])</span><br><span class="line">Ymod = np.array([<span class="number">0.0</span>, <span class="number">0.5</span>, <span class="number">1.0</span>, <span class="number">0.5</span>, <span class="number">0.0</span>, -<span class="number">0.5</span>, -<span class="number">1.0</span>, -<span class="number">0.5</span>, <span class="number">0.0</span>, <span class="number">0.5</span>, <span class="number">1.0</span>])</span><br><span class="line">RibTan = np.array([<span class="number">0.1</span>, <span class="number">0.2</span>, <span class="number">0.3</span>])</span><br><span class="line">Part = np.array([<span class="number">0.0</span>, <span class="number">0.3</span>, <span class="number">0.6</span>, <span class="number">1.0</span>])</span><br><span class="line">Xc = <span class="number">0.5</span></span><br><span class="line">BaseR = np.array([<span class="number">0.1</span>, <span class="number">0.2</span>, <span class="number">0.3</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 调用函数</span></span><br><span class="line">fh1, fh2, fdl1, fdl2, Sw1, Sw2, Imin1, Imin2, FlagAhead = calc_clearances(</span><br><span class="line">    Nview, Ncon, HX, Xpr, Ypr1, Ypr2, Xmod, Ymod, RibTan, Part, Xc, BaseR</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 输出结果</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;最小下间隙: <span class="subst">&#123;fh1&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;最小上间隙: <span class="subst">&#123;fh2&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;下部沾湿长度: <span class="subst">&#123;fdl1&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;上部沾湿长度: <span class="subst">&#123;fdl2&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;下部沾湿面积: <span class="subst">&#123;Sw1&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;上部沾湿面积: <span class="subst">&#123;Sw2&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;下间隙最小值对应的肋编号: <span class="subst">&#123;Imin1&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;上间隙最小值对应的肋编号: <span class="subst">&#123;Imin2&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;是否模型前端超出质心: <span class="subst">&#123;FlagAhead&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h2 id="bei-zhu" id="备注">备注</h2>
+<p>该函数实现了Fortran子程序<code>CalcClearances</code>的核心功能，包括计算模型肋部的间隙和沾湿长度。通过详细的注释和参数说明，使其更易于理解和使用。变量名称沿用了原程序的命名，以便于对照和理解。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>高速入水</category>
+      </categories>
+      <tags>
+        <tag>高速入水</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>【高速入水】【CalcForces】作用在超空泡模型上的力和力矩的计算</title>
     <url>/2025/01/25/CalcForces_fast_in_water/</url>
     <content><![CDATA[<h1 id="chao-kong-pao-mo-xing-de-li-he-li-ju-ji-suan-gong-shi">超空泡模型的力和力矩计算公式</h1>
@@ -390,195 +579,6 @@ C_{sm} = C_{sm1} + C_{sm2}
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="comment"># 示例数据</span></span><br><span class="line">V0 = <span class="number">10.0</span>  <span class="comment"># 模型速度</span></span><br><span class="line">Xmin = <span class="number">0.0</span>  <span class="comment"># 分析区间的最小X值</span></span><br><span class="line">Xmax = <span class="number">10.0</span>  <span class="comment"># 分析区间的最大X值</span></span><br><span class="line">Khis = <span class="number">1</span>  <span class="comment"># 历史数据的采样间隔系数</span></span><br><span class="line">HX = <span class="number">0.1</span>  <span class="comment"># 计算步长</span></span><br><span class="line">Lm = <span class="number">1.0</span>  <span class="comment"># 模型长度</span></span><br><span class="line">Xhis = np.linspace(<span class="number">0</span>, <span class="number">10</span>, <span class="number">100</span>)  <span class="comment"># 历史数据中的X坐标数组</span></span><br><span class="line">Phis = np.sin(Xhis)  <span class="comment"># 示例角度数据</span></span><br><span class="line">Vx = np.ones_like(Xhis) * <span class="number">10.0</span>  <span class="comment"># 示例速度数据</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 调用函数</span></span><br><span class="line">mFpsi, FlagFrequency = calc_model_frequency(V0, Xmin, Xmax, Khis, HX, Lm, Xhis, Phis, Vx)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 输出结果</span></span><br><span class="line"><span class="keyword">if</span> FlagFrequency:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;估计的&#x27;Psi&#x27;振荡频率为: <span class="subst">&#123;mFpsi&#125;</span> KHz&quot;</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;无法估计&#x27;Psi&#x27;振荡频率&quot;</span>)</span><br></pre></td></tr></table></figure>
 <h2 id="bei-zhu" id="备注">备注</h2>
 <p>该函数假设输入的历史数据数组 <code>Xhis</code>、<code>Phis</code> 和 <code>Vx</code> 的长度相同，并且按时间顺序排列。函数通过零点交叉法估计频率，适用于周期性变化的角度数据。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>高速入水</category>
-      </categories>
-      <tags>
-        <tag>高速入水</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>【高速入水】【CalcClearances】模型肋部的间隙和沾湿长度</title>
-    <url>/2025/03/08/CalcClearances_fast_in_water/</url>
-    <content><![CDATA[<h1 id="code-calc-clearances-code-han-shu-shuo-ming-wen-dang"><code>calc_clearances</code> 函数说明文档</h1>
-<h2 id="gong-neng-miao-shu" id="功能描述">功能描述</h2>
-<p>该函数用于计算模型肋部的间隙和沾湿长度。通过分析模型轮廓与空腔轮廓的相对位置，确定模型各肋部的上下间隙以及沾湿部分的长度和面积。</p>
-<h2 id="can-shu-shuo-ming" id="参数说明">参数说明</h2>
-<table>
-<thead>
-<tr>
-<th>参数名</th>
-<th>类型</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>Nview</code></td>
-<td><code>int</code></td>
-<td>可视化窗口中的步数</td>
-</tr>
-<tr>
-<td><code>Ncon</code></td>
-<td><code>int</code></td>
-<td>模型的节数</td>
-</tr>
-<tr>
-<td><code>HX</code></td>
-<td><code>float</code></td>
-<td>计算步长</td>
-</tr>
-<tr>
-<td><code>Xpr</code></td>
-<td><code>ndarray</code></td>
-<td>空腔点的X坐标数组</td>
-</tr>
-<tr>
-<td><code>Ypr1</code></td>
-<td><code>ndarray</code></td>
-<td>下空腔轮廓的Y坐标数组</td>
-</tr>
-<tr>
-<td><code>Ypr2</code></td>
-<td><code>ndarray</code></td>
-<td>上空腔轮廓的Y坐标数组</td>
-</tr>
-<tr>
-<td><code>Xmod</code></td>
-<td><code>ndarray</code></td>
-<td>模型轮廓点的X坐标数组</td>
-</tr>
-<tr>
-<td><code>Ymod</code></td>
-<td><code>ndarray</code></td>
-<td>模型轮廓点的Y坐标数组</td>
-</tr>
-<tr>
-<td><code>RibTan</code></td>
-<td><code>ndarray</code></td>
-<td>模型各节的边缘线角度的正切值</td>
-</tr>
-<tr>
-<td><code>Part</code></td>
-<td><code>ndarray</code></td>
-<td>模型各节的无量纲长度</td>
-</tr>
-<tr>
-<td><code>Xc</code></td>
-<td><code>float</code></td>
-<td>模型质心的无量纲X坐标</td>
-</tr>
-<tr>
-<td><code>BaseR</code></td>
-<td><code>ndarray</code></td>
-<td>模型各节末端的无量纲半径数组</td>
-</tr>
-</tbody>
-</table>
-<h2 id="fan-hui-zhi" id="返回值">返回值</h2>
-<table>
-<thead>
-<tr>
-<th>返回值名</th>
-<th>类型</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>fh1</code></td>
-<td><code>float</code></td>
-<td>最小下间隙（正值表示浸没深度）</td>
-</tr>
-<tr>
-<td><code>fh2</code></td>
-<td><code>float</code></td>
-<td>最小上间隙（正值表示浸没深度）</td>
-</tr>
-<tr>
-<td><code>fdl1</code></td>
-<td><code>float</code></td>
-<td>下部沾湿长度</td>
-</tr>
-<tr>
-<td><code>fdl2</code></td>
-<td><code>float</code></td>
-<td>上部沾湿长度</td>
-</tr>
-<tr>
-<td><code>Sw1</code></td>
-<td><code>float</code></td>
-<td>下部沾湿面积</td>
-</tr>
-<tr>
-<td><code>Sw2</code></td>
-<td><code>float</code></td>
-<td>上部沾湿面积</td>
-</tr>
-<tr>
-<td><code>Imin1</code></td>
-<td><code>int</code></td>
-<td>下间隙最小值对应的肋编号</td>
-</tr>
-<tr>
-<td><code>Imin2</code></td>
-<td><code>int</code></td>
-<td>上间隙最小值对应的肋编号</td>
-</tr>
-<tr>
-<td><code>FlagAhead</code></td>
-<td><code>bool</code></td>
-<td>是否模型前端超出质心的标志</td>
-</tr>
-</tbody>
-</table>
-<h2 id="shu-xue-gong-shi" id="数学公式">数学公式</h2>
-<h3 id="xia-jian-xi-ji-suan" id="下间隙计算">下间隙计算</h3>
-<p>对于每个模型肋部 <code>k</code>，计算下间隙 <code>Cl1[k]</code>：</p>
-<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>Cl1</mtext><mo stretchy="false">[</mo><mi>k</mi><mo stretchy="false">]</mo><mo>=</mo><mi>Y</mi><mn>1</mn><mi>r</mi><mi>i</mi><mo>−</mo><mi>Y</mi><mi>m</mi><mi>o</mi><mi>d</mi><mo stretchy="false">[</mo><mn>2</mn><mi>N</mi><mi>c</mi><mi>o</mi><mi>n</mi><mo>+</mo><mn>2</mn><mo>−</mo><mi>k</mi><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">\text{Cl1}[k] = Y1ri - Ymod[2Ncon + 2 - k]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord text"><span class="mord">Cl1</span></span><span class="mopen">[</span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal" style="margin-right:0.22222em;">Y</span><span class="mord">1</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mord mathnormal">i</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">Ym</span><span class="mord mathnormal">o</span><span class="mord mathnormal">d</span><span class="mopen">[</span><span class="mord">2</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mord mathnormal">co</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">2</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mclose">]</span></span></span></span></p>
-<p>其中，<code>Y1ri</code> 是通过线性插值得到的空腔轮廓Y坐标：</p>
-<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mn>1</mn><mi>r</mi><mi>i</mi><mo>=</mo><mi>Y</mi><mi>p</mi><mi>r</mi><mn>1</mn><mo stretchy="false">[</mo><mi>i</mi><mo>−</mo><mn>1</mn><mo stretchy="false">]</mo><mo>+</mo><mfrac><mrow><mo stretchy="false">(</mo><mi>X</mi><mi>m</mi><mi>o</mi><mi>d</mi><mo stretchy="false">[</mo><mn>2</mn><mi>N</mi><mi>c</mi><mi>o</mi><mi>n</mi><mo>+</mo><mn>2</mn><mo>−</mo><mi>k</mi><mo stretchy="false">]</mo><mo>−</mo><mi>X</mi><mi>p</mi><mi>r</mi><mo stretchy="false">[</mo><mi>i</mi><mo>−</mo><mn>1</mn><mo stretchy="false">]</mo><mo stretchy="false">)</mo></mrow><mrow><mi>H</mi><mi>X</mi></mrow></mfrac><mo>×</mo><mo stretchy="false">(</mo><mi>Y</mi><mi>p</mi><mi>r</mi><mn>1</mn><mo stretchy="false">[</mo><mi>i</mi><mo stretchy="false">]</mo><mo>−</mo><mi>Y</mi><mi>p</mi><mi>r</mi><mn>1</mn><mo stretchy="false">[</mo><mi>i</mi><mo>−</mo><mn>1</mn><mo stretchy="false">]</mo><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">Y1ri = Ypr1[i-1] + \frac{(Xmod[2Ncon + 2 - k] - Xpr[i-1])}{HX} \times (Ypr1[i] - Ypr1[i-1])</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.22222em;">Y</span><span class="mord">1</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mord mathnormal">i</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.22222em;">Y</span><span class="mord mathnormal">p</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mord">1</span><span class="mopen">[</span><span class="mord mathnormal">i</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.355em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.01em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.08125em;">H</span><span class="mord mathnormal mtight" style="margin-right:0.07847em;">X</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.485em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mopen mtight">(</span><span class="mord mathnormal mtight" style="margin-right:0.07847em;">X</span><span class="mord mathnormal mtight">m</span><span class="mord mathnormal mtight">o</span><span class="mord mathnormal mtight">d</span><span class="mopen mtight">[</span><span class="mord mtight">2</span><span class="mord mathnormal mtight" style="margin-right:0.10903em;">N</span><span class="mord mathnormal mtight">co</span><span class="mord mathnormal mtight">n</span><span class="mbin mtight">+</span><span class="mord mtight">2</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span><span class="mclose mtight">]</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight">Xp</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span><span class="mopen mtight">[</span><span class="mord mathnormal mtight">i</span><span class="mbin mtight">−</span><span class="mord mtight">1</span><span class="mclose mtight">])</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.22222em;">Y</span><span class="mord mathnormal">p</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mord">1</span><span class="mopen">[</span><span class="mord mathnormal">i</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.22222em;">Y</span><span class="mord mathnormal">p</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mord">1</span><span class="mopen">[</span><span class="mord mathnormal">i</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">])</span></span></span></span></p>
-<h3 id="xia-bu-zhan-shi-chang-du-ji-suan" id="下部沾湿长度计算">下部沾湿长度计算</h3>
-<p>如果存在接触（<code>Cl1[k] &gt; 0</code>），计算下部沾湿长度 <code>fdl1</code>：</p>
-<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mi>d</mi><mi>l</mi><mn>1</mn><mo>=</mo><mi>X</mi><mi>m</mi><mi>o</mi><mi>d</mi><mo stretchy="false">[</mo><mn>2</mn><mi>N</mi><mi>c</mi><mi>o</mi><mi>n</mi><mo>+</mo><mn>2</mn><mo>−</mo><mi>k</mi><mo stretchy="false">]</mo><mo>−</mo><mi>X</mi><mi>p</mi><mi>r</mi><mo stretchy="false">[</mo><mi>i</mi><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">fdl1 = Xmod[2Ncon + 2 - k] - Xpr[i]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">fd</span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.07847em;">X</span><span class="mord mathnormal">m</span><span class="mord mathnormal">o</span><span class="mord mathnormal">d</span><span class="mopen">[</span><span class="mord">2</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mord mathnormal">co</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">2</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">Xp</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mopen">[</span><span class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></p>
-<p>沾湿面积 <code>Sw1</code>：</p>
-<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mi>w</mi><mn>1</mn><mo>=</mo><mi>f</mi><mi>d</mi><mi>l</mi><mn>1</mn><mo>×</mo><msqrt><mrow><mn>2</mn><mo>×</mo><mi>B</mi><mi>a</mi><mi>s</mi><mi>e</mi><mi>R</mi><mo stretchy="false">[</mo><mi>k</mi><mo stretchy="false">]</mo><mo>×</mo><mi>f</mi><mi>h</mi><mn>1</mn></mrow></msqrt></mrow><annotation encoding="application/x-tex">Sw1 = fdl1 \times \sqrt{2 \times BaseR[k] \times fh1}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.02691em;">Sw</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">fd</span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.24em;vertical-align:-0.305em;"></span><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.935em;"><span class="svg-align" style="top:-3.2em;"><span class="pstrut" style="height:3.2em;"></span><span class="mord" style="padding-left:1em;"><span class="mord">2</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal">a</span><span class="mord mathnormal">se</span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mopen">[</span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mord mathnormal">h</span><span class="mord">1</span></span></span><span style="top:-2.895em;"><span class="pstrut" style="height:3.2em;"></span><span class="hide-tail" style="min-width:1.02em;height:1.28em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="1.28em" viewBox="0 0 400000 1296" preserveAspectRatio="xMinYMin slice"><path d="M263,681c0.7,0,18,39.7,52,119
-c34,79.3,68.167,158.7,102.5,238c34.3,79.3,51.8,119.3,52.5,120
-c340,-704.7,510.7,-1060.3,512,-1067
-l0 -0
-c4.7,-7.3,11,-11,19,-11
-H40000v40H1012.3
-s-271.3,567,-271.3,567c-38.7,80.7,-84,175,-136,283c-52,108,-89.167,185.3,-111.5,232
-c-22.3,46.7,-33.8,70.3,-34.5,71c-4.7,4.7,-12.3,7,-23,7s-12,-1,-12,-1
-s-109,-253,-109,-253c-72.7,-168,-109.3,-252,-110,-252c-10.7,8,-22,16.7,-34,26
-c-22,17.3,-33.3,26,-34,26s-26,-26,-26,-26s76,-59,76,-59s76,-60,76,-60z
-M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.305em;"><span></span></span></span></span></span></span></span></span></p>
-<h3 id="shang-jian-xi-ji-suan" id="上间隙计算">上间隙计算</h3>
-<p>对于每个模型肋部 <code>k</code>，计算上间隙 <code>Cl2[k]</code>：</p>
-<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>Cl2</mtext><mo stretchy="false">[</mo><mi>k</mi><mo stretchy="false">]</mo><mo>=</mo><mi>Y</mi><mi>m</mi><mi>o</mi><mi>d</mi><mo stretchy="false">[</mo><mi>k</mi><mo>+</mo><mn>1</mn><mo stretchy="false">]</mo><mo>−</mo><mi>Y</mi><mn>2</mn><mi>r</mi><mi>i</mi></mrow><annotation encoding="application/x-tex">\text{Cl2}[k] = Ymod[k + 1] - Y2ri</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord text"><span class="mord">Cl2</span></span><span class="mopen">[</span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">Ym</span><span class="mord mathnormal">o</span><span class="mord mathnormal">d</span><span class="mopen">[</span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.22222em;">Y</span><span class="mord">2</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mord mathnormal">i</span></span></span></span></p>
-<p>其中，<code>Y2ri</code> 是通过线性插值得到的空腔轮廓Y坐标：</p>
-<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mn>2</mn><mi>r</mi><mi>i</mi><mo>=</mo><mi>Y</mi><mi>p</mi><mi>r</mi><mn>2</mn><mo stretchy="false">[</mo><mi>i</mi><mo>−</mo><mn>1</mn><mo stretchy="false">]</mo><mo>+</mo><mfrac><mrow><mo stretchy="false">(</mo><mi>X</mi><mi>m</mi><mi>o</mi><mi>d</mi><mo stretchy="false">[</mo><mi>k</mi><mo>+</mo><mn>1</mn><mo stretchy="false">]</mo><mo>−</mo><mi>X</mi><mi>p</mi><mi>r</mi><mo stretchy="false">[</mo><mi>i</mi><mo>−</mo><mn>1</mn><mo stretchy="false">]</mo><mo stretchy="false">)</mo></mrow><mrow><mi>H</mi><mi>X</mi></mrow></mfrac><mo>×</mo><mo stretchy="false">(</mo><mi>Y</mi><mi>p</mi><mi>r</mi><mn>2</mn><mo stretchy="false">[</mo><mi>i</mi><mo stretchy="false">]</mo><mo>−</mo><mi>Y</mi><mi>p</mi><mi>r</mi><mn>2</mn><mo stretchy="false">[</mo><mi>i</mi><mo>−</mo><mn>1</mn><mo stretchy="false">]</mo><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">Y2ri = Ypr2[i-1] + \frac{(Xmod[k + 1] - Xpr[i-1])}{HX} \times (Ypr2[i] - Ypr2[i-1])</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.22222em;">Y</span><span class="mord">2</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mord mathnormal">i</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.22222em;">Y</span><span class="mord mathnormal">p</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mord">2</span><span class="mopen">[</span><span class="mord mathnormal">i</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.355em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.01em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.08125em;">H</span><span class="mord mathnormal mtight" style="margin-right:0.07847em;">X</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.485em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mopen mtight">(</span><span class="mord mathnormal mtight" style="margin-right:0.07847em;">X</span><span class="mord mathnormal mtight">m</span><span class="mord mathnormal mtight">o</span><span class="mord mathnormal mtight">d</span><span class="mopen mtight">[</span><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span><span class="mbin mtight">+</span><span class="mord mtight">1</span><span class="mclose mtight">]</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight">Xp</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span><span class="mopen mtight">[</span><span class="mord mathnormal mtight">i</span><span class="mbin mtight">−</span><span class="mord mtight">1</span><span class="mclose mtight">])</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.22222em;">Y</span><span class="mord mathnormal">p</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mord">2</span><span class="mopen">[</span><span class="mord mathnormal">i</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.22222em;">Y</span><span class="mord mathnormal">p</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mord">2</span><span class="mopen">[</span><span class="mord mathnormal">i</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">])</span></span></span></span></p>
-<h3 id="shang-bu-zhan-shi-chang-du-ji-suan" id="上部沾湿长度计算">上部沾湿长度计算</h3>
-<p>如果存在接触（<code>Cl2[k] &gt; 0</code>），计算上部沾湿长度 <code>fdl2</code>：</p>
-<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mi>d</mi><mi>l</mi><mn>2</mn><mo>=</mo><mi>X</mi><mi>m</mi><mi>o</mi><mi>d</mi><mo stretchy="false">[</mo><mi>k</mi><mo>+</mo><mn>1</mn><mo stretchy="false">]</mo><mo>−</mo><mi>X</mi><mi>p</mi><mi>r</mi><mo stretchy="false">[</mo><mi>i</mi><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">fdl2 = Xmod[k + 1] - Xpr[i]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">fd</span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord">2</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.07847em;">X</span><span class="mord mathnormal">m</span><span class="mord mathnormal">o</span><span class="mord mathnormal">d</span><span class="mopen">[</span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">Xp</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mopen">[</span><span class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></p>
-<p>沾湿面积 <code>Sw2</code>：</p>
-<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mi>w</mi><mn>2</mn><mo>=</mo><mi>f</mi><mi>d</mi><mi>l</mi><mn>2</mn><mo>×</mo><msqrt><mrow><mn>2</mn><mo>×</mo><mi>B</mi><mi>a</mi><mi>s</mi><mi>e</mi><mi>R</mi><mo stretchy="false">[</mo><mi>k</mi><mo stretchy="false">]</mo><mo>×</mo><mi>f</mi><mi>h</mi><mn>2</mn></mrow></msqrt></mrow><annotation encoding="application/x-tex">Sw2 = fdl2 \times \sqrt{2 \times BaseR[k] \times fh2}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.02691em;">Sw</span><span class="mord">2</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">fd</span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord">2</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.24em;vertical-align:-0.305em;"></span><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.935em;"><span class="svg-align" style="top:-3.2em;"><span class="pstrut" style="height:3.2em;"></span><span class="mord" style="padding-left:1em;"><span class="mord">2</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal">a</span><span class="mord mathnormal">se</span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mopen">[</span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mord mathnormal">h</span><span class="mord">2</span></span></span><span style="top:-2.895em;"><span class="pstrut" style="height:3.2em;"></span><span class="hide-tail" style="min-width:1.02em;height:1.28em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="1.28em" viewBox="0 0 400000 1296" preserveAspectRatio="xMinYMin slice"><path d="M263,681c0.7,0,18,39.7,52,119
-c34,79.3,68.167,158.7,102.5,238c34.3,79.3,51.8,119.3,52.5,120
-c340,-704.7,510.7,-1060.3,512,-1067
-l0 -0
-c4.7,-7.3,11,-11,19,-11
-H40000v40H1012.3
-s-271.3,567,-271.3,567c-38.7,80.7,-84,175,-136,283c-52,108,-89.167,185.3,-111.5,232
-c-22.3,46.7,-33.8,70.3,-34.5,71c-4.7,4.7,-12.3,7,-23,7s-12,-1,-12,-1
-s-109,-253,-109,-253c-72.7,-168,-109.3,-252,-110,-252c-10.7,8,-22,16.7,-34,26
-c-22,17.3,-33.3,26,-34,26s-26,-26,-26,-26s76,-59,76,-59s76,-60,76,-60z
-M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.305em;"><span></span></span></span></span></span></span></span></span></p>
-<h2 id="shi-li-diao-yong" id="示例调用">示例调用</h2>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 示例数据</span></span><br><span class="line">Nview = <span class="number">100</span></span><br><span class="line">Ncon = <span class="number">3</span></span><br><span class="line">HX = <span class="number">0.1</span></span><br><span class="line">Xpr = np.linspace(<span class="number">0</span>, <span class="number">10</span>, Nview)</span><br><span class="line">Ypr1 = np.sin(Xpr)</span><br><span class="line">Ypr2 = np.cos(Xpr)</span><br><span class="line">Xmod = np.array([<span class="number">0.0</span>, <span class="number">1.0</span>, <span class="number">2.0</span>, <span class="number">3.0</span>, <span class="number">4.0</span>, <span class="number">5.0</span>, <span class="number">6.0</span>, <span class="number">7.0</span>, <span class="number">8.0</span>, <span class="number">9.0</span>, <span class="number">10.0</span>])</span><br><span class="line">Ymod = np.array([<span class="number">0.0</span>, <span class="number">0.5</span>, <span class="number">1.0</span>, <span class="number">0.5</span>, <span class="number">0.0</span>, -<span class="number">0.5</span>, -<span class="number">1.0</span>, -<span class="number">0.5</span>, <span class="number">0.0</span>, <span class="number">0.5</span>, <span class="number">1.0</span>])</span><br><span class="line">RibTan = np.array([<span class="number">0.1</span>, <span class="number">0.2</span>, <span class="number">0.3</span>])</span><br><span class="line">Part = np.array([<span class="number">0.0</span>, <span class="number">0.3</span>, <span class="number">0.6</span>, <span class="number">1.0</span>])</span><br><span class="line">Xc = <span class="number">0.5</span></span><br><span class="line">BaseR = np.array([<span class="number">0.1</span>, <span class="number">0.2</span>, <span class="number">0.3</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 调用函数</span></span><br><span class="line">fh1, fh2, fdl1, fdl2, Sw1, Sw2, Imin1, Imin2, FlagAhead = calc_clearances(</span><br><span class="line">    Nview, Ncon, HX, Xpr, Ypr1, Ypr2, Xmod, Ymod, RibTan, Part, Xc, BaseR</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 输出结果</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;最小下间隙: <span class="subst">&#123;fh1&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;最小上间隙: <span class="subst">&#123;fh2&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;下部沾湿长度: <span class="subst">&#123;fdl1&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;上部沾湿长度: <span class="subst">&#123;fdl2&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;下部沾湿面积: <span class="subst">&#123;Sw1&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;上部沾湿面积: <span class="subst">&#123;Sw2&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;下间隙最小值对应的肋编号: <span class="subst">&#123;Imin1&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;上间隙最小值对应的肋编号: <span class="subst">&#123;Imin2&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;是否模型前端超出质心: <span class="subst">&#123;FlagAhead&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
-<h2 id="bei-zhu" id="备注">备注</h2>
-<p>该函数实现了Fortran子程序<code>CalcClearances</code>的核心功能，包括计算模型肋部的间隙和沾湿长度。通过详细的注释和参数说明，使其更易于理解和使用。变量名称沿用了原程序的命名，以便于对照和理解。</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
@@ -4422,6 +4422,29 @@ y_t = y_{s0} - x_0 \cdot \sin(\Gamma) + y_0 \cdot \cos(\Gamma)
       </tags>
   </entry>
   <entry>
+    <title>自建API</title>
+    <url>/2024/12/20/api/</url>
+    <content><![CDATA[<h1 id="api-di-zhi">API地址</h1>
+<p><code>https://api.wxcsz.top</code></p>
+<h1 id="dong-tai-ppt-bei-jing">动态PPT背景</h1>
+<ul>
+<li><code>https://api.wxcsz.top/html/ppt.html</code></li>
+<li><code>https://api.wxcsz.top/html/ppt2.html</code></li>
+<li><code>https://api.wxcsz.top/html/ppt3.html</code><br>
+分别对应了<code>普通</code>，<code>樱花</code>，<code>雪花</code>三种模式<br>
+小妹在此感谢<code>二次寒树</code>大佬的图片以及<code>樱道随机图片</code>的思路</li>
+</ul>
+<h2 id="dong-tai-bei-jing-de-diao-yong" id="动态背景的调用">动态背景的调用</h2>
+<p>有两种调用方式</p>
+<h3 id="way-1-xiu-gai-wang-ye-tou-bu" id="way1：修改网页头部">way1：修改网页头部</h3>
+<p>在网站有一个统一的header头部文件时，使用该方法把下面代码插入后即可。</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">style</span>&gt;</span><span class="language-css"></span></span><br><span class="line"><span class="language-css">    <span class="selector-tag">html</span>,</span></span><br><span class="line"><span class="language-css">    <span class="selector-tag">body</span> &#123;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">margin</span>: <span class="number">0</span>;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">width</span>: <span class="number">100%</span>;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">height</span>: <span class="number">100%</span>;</span></span><br><span class="line"><span class="language-css">    &#125;</span></span><br><span class="line"><span class="language-css"></span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;dynamic-background&quot;</span> <span class="attr">style</span>=<span class="string">&quot;width: 100%; height: 100%; position: fixed;z-index: -1;&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">        <span class="variable language_">window</span>.<span class="title function_">addEventListener</span>(<span class="string">&quot;load&quot;</span>, <span class="keyword">function</span>(<span class="params">e</span>)&#123;</span></span><br><span class="line"><span class="language-javascript">            <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;dynamic-background&quot;</span>).<span class="property">innerHTML</span> = <span class="string">&#x27;&lt;iframe src=&quot;https://api.wxcsz.top/html/ppt.html&quot; width=&quot;100%&quot; height=&quot;100%&quot; style=&quot;border: 0;&quot;&gt;&lt;/iframe&gt;&#x27;</span>;</span></span><br><span class="line"><span class="language-javascript">               &#125;);</span></span><br><span class="line"><span class="language-javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="way-2-zai-wang-ye-ren-yi-wei-zhi-tian-jia-js-dai-ma" id="way-2：在网页任意位置添加js代码">way 2：在网页任意位置添加js代码</h3>
+<p>使用该方法只需把下方js代码放在网页任意位置（放在html里时注意添加script标签），甚至放在全局js文件里都行。</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="variable language_">window</span>.<span class="title function_">addEventListener</span>(<span class="string">&quot;load&quot;</span>, <span class="keyword">function</span>(<span class="params">e</span>)&#123;</span><br><span class="line">    <span class="keyword">var</span> obj = <span class="variable language_">document</span>.<span class="title function_">createElement</span>(<span class="string">&quot;div&quot;</span>);</span><br><span class="line">    obj.<span class="property">style</span> = <span class="string">&quot;width:100%; height:100%; position:fixed; z-index:-1;&quot;</span>;</span><br><span class="line">    obj.<span class="property">innerHTML</span>= <span class="string">&#x27;&lt;iframe src=&quot;https://api.wxcsz.top/html/ppt.html&quot; width=&quot;100%&quot; height=&quot;100%&quot; style=&quot;border: 0;&quot;&gt;&lt;/iframe&gt;&#x27;</span>;</span><br><span class="line">    <span class="keyword">var</span> first = <span class="variable language_">document</span>.<span class="property">body</span>.<span class="property">firstChild</span>; <span class="comment">// 得到页面的第一个元素</span></span><br><span class="line">    <span class="variable language_">document</span>.<span class="property">body</span>.<span class="title function_">insertBefore</span>(obj,first); <span class="comment">// 在得到的第一个元素之前插入</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+]]></content>
+  </entry>
+  <entry>
     <title>【高速入水】【TurnPointOnGamma】围绕空穴中心以角度γ旋转任意点的坐标</title>
     <url>/2025/02/03/TurnPointOnGamma_fast_in_water/</url>
     <content><![CDATA[<h1 id="code-turn-point-on-gamma-code-han-shu-de-shu-xue-gong-shi-biao-shi"><code>TurnPointOnGamma</code> 函数的数学公式表示</h1>
@@ -4458,29 +4481,6 @@ y_t = y_{s0} - x_0 \cdot \sin(\Gamma) + y_0 \cdot \cos(\Gamma)
       <tags>
         <tag>高速入水</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>自建API</title>
-    <url>/2024/12/20/api/</url>
-    <content><![CDATA[<h1 id="api-di-zhi">API地址</h1>
-<p><code>https://api.wxcsz.top</code></p>
-<h1 id="dong-tai-ppt-bei-jing">动态PPT背景</h1>
-<ul>
-<li><code>https://api.wxcsz.top/html/ppt.html</code></li>
-<li><code>https://api.wxcsz.top/html/ppt2.html</code></li>
-<li><code>https://api.wxcsz.top/html/ppt3.html</code><br>
-分别对应了<code>普通</code>，<code>樱花</code>，<code>雪花</code>三种模式<br>
-小妹在此感谢<code>二次寒树</code>大佬的图片以及<code>樱道随机图片</code>的思路</li>
-</ul>
-<h2 id="dong-tai-bei-jing-de-diao-yong" id="动态背景的调用">动态背景的调用</h2>
-<p>有两种调用方式</p>
-<h3 id="way-1-xiu-gai-wang-ye-tou-bu" id="way1：修改网页头部">way1：修改网页头部</h3>
-<p>在网站有一个统一的header头部文件时，使用该方法把下面代码插入后即可。</p>
-<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">style</span>&gt;</span><span class="language-css"></span></span><br><span class="line"><span class="language-css">    <span class="selector-tag">html</span>,</span></span><br><span class="line"><span class="language-css">    <span class="selector-tag">body</span> &#123;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">margin</span>: <span class="number">0</span>;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">width</span>: <span class="number">100%</span>;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">height</span>: <span class="number">100%</span>;</span></span><br><span class="line"><span class="language-css">    &#125;</span></span><br><span class="line"><span class="language-css"></span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;dynamic-background&quot;</span> <span class="attr">style</span>=<span class="string">&quot;width: 100%; height: 100%; position: fixed;z-index: -1;&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">        <span class="variable language_">window</span>.<span class="title function_">addEventListener</span>(<span class="string">&quot;load&quot;</span>, <span class="keyword">function</span>(<span class="params">e</span>)&#123;</span></span><br><span class="line"><span class="language-javascript">            <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;dynamic-background&quot;</span>).<span class="property">innerHTML</span> = <span class="string">&#x27;&lt;iframe src=&quot;https://api.wxcsz.top/html/ppt.html&quot; width=&quot;100%&quot; height=&quot;100%&quot; style=&quot;border: 0;&quot;&gt;&lt;/iframe&gt;&#x27;</span>;</span></span><br><span class="line"><span class="language-javascript">               &#125;);</span></span><br><span class="line"><span class="language-javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<h3 id="way-2-zai-wang-ye-ren-yi-wei-zhi-tian-jia-js-dai-ma" id="way-2：在网页任意位置添加js代码">way 2：在网页任意位置添加js代码</h3>
-<p>使用该方法只需把下方js代码放在网页任意位置（放在html里时注意添加script标签），甚至放在全局js文件里都行。</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="variable language_">window</span>.<span class="title function_">addEventListener</span>(<span class="string">&quot;load&quot;</span>, <span class="keyword">function</span>(<span class="params">e</span>)&#123;</span><br><span class="line">    <span class="keyword">var</span> obj = <span class="variable language_">document</span>.<span class="title function_">createElement</span>(<span class="string">&quot;div&quot;</span>);</span><br><span class="line">    obj.<span class="property">style</span> = <span class="string">&quot;width:100%; height:100%; position:fixed; z-index:-1;&quot;</span>;</span><br><span class="line">    obj.<span class="property">innerHTML</span>= <span class="string">&#x27;&lt;iframe src=&quot;https://api.wxcsz.top/html/ppt.html&quot; width=&quot;100%&quot; height=&quot;100%&quot; style=&quot;border: 0;&quot;&gt;&lt;/iframe&gt;&#x27;</span>;</span><br><span class="line">    <span class="keyword">var</span> first = <span class="variable language_">document</span>.<span class="property">body</span>.<span class="property">firstChild</span>; <span class="comment">// 得到页面的第一个元素</span></span><br><span class="line">    <span class="variable language_">document</span>.<span class="property">body</span>.<span class="title function_">insertBefore</span>(obj,first); <span class="comment">// 在得到的第一个元素之前插入</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-]]></content>
   </entry>
   <entry>
     <title>【ATK】基于MATLAB的ATK二次开发指南：卫星对地目标可见性分析优化</title>
@@ -5265,6 +5265,11 @@ y_t = y_{s0} - x_0 \cdot \sin(\Gamma) + y_0 \cdot \cos(\Gamma)
     <content><![CDATA[]]></content>
   </entry>
   <entry>
+    <title>categories</title>
+    <url>/categories/index.html</url>
+    <content><![CDATA[]]></content>
+  </entry>
+  <entry>
     <title></title>
     <url>/css/head.css</url>
     <content><![CDATA[/* #canvas-basic {
@@ -5462,11 +5467,6 @@ rgba(35,37,58,.9),
 rgba(35,37,58,.9), 
 rgba(24,40,72,.2));
 }]]></content>
-  </entry>
-  <entry>
-    <title>categories</title>
-    <url>/categories/index.html</url>
-    <content><![CDATA[]]></content>
   </entry>
   <entry>
     <title></title>
@@ -5831,11 +5831,6 @@ $(function(){
 });]]></content>
   </entry>
   <entry>
-    <title>movies</title>
-    <url>/movies/index.html</url>
-    <content><![CDATA[]]></content>
-  </entry>
-  <entry>
     <title></title>
     <url>/js/fish.js</url>
     <content><![CDATA[fish();
@@ -5858,6 +5853,11 @@ function fish() {
       this
     );
   }]]></content>
+  </entry>
+  <entry>
+    <title>movies</title>
+    <url>/movies/index.html</url>
+    <content><![CDATA[]]></content>
   </entry>
   <entry>
     <title>music</title>
